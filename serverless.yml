@@ -1,0 +1,65 @@
+service: bkoninski-aws-workshops-1  # NOTE: update this with your service name
+
+custom:
+  bucket_name: "bkoninski-aws-workshops-bucket"
+  queue_name: "bkoninski-aws-workshops-queue"
+
+provider:
+  name: aws
+  runtime: python3.8
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+        - "s3:PutObjectAcl"
+      Resource:
+        - "arn:aws:s3:::${self:custom.bucket_name}/*"
+        - "arn:aws:s3:::${self:custom.bucket_name}"
+    - Effect: "Allow"
+      Action:
+        - "sqs:SendMessage"
+        - "sqs:GetQueueUrl"
+      Resource:
+        - Fn::GetAtt: [MyQueue, Arn]
+
+functions:
+  scraper:
+    handler: handlers.scraper.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [MyQueue, Arn]
+          batchSize: 10
+    environment:
+      BUCKET_NAME: ${self:custom.bucket_name}
+  trigger:
+    handler: handlers.trigger.handler
+    environment:
+      QUEUE_NAME: ${self:custom.queue_name}
+    events:
+      - http:
+          path: trigger
+          method: get
+
+resources:
+  Resources:
+    MyS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucket_name}
+    MyQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.queue_name}
+        VisibilityTimeout: 60
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt: ['MyQueueDLQ', 'Arn']
+          maxReceiveCount: 5
+    MyQueueDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        MessageRetentionPeriod: 1209600
+
+plugins:
+  - serverless-python-requirements
