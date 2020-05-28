@@ -1,8 +1,8 @@
-service: bkoninski-aws-workshops-1  # NOTE: update this with your service name
+service: <CHANGE_ME>-aws-workshops-1  # NOTE: update this with your service name
 
 custom:
-  bucket_name: "bkoninski-aws-workshops-bucket"
-  queue_name: "bkoninski-aws-workshops-queue"
+  bucket_name: "<CHANGE_ME>-aws-workshops-bucket"
+  queue_name: "<CHANGE_ME>-aws-workshops-queue"
 
 provider:
   name: aws

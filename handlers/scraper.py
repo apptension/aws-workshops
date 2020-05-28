@@ -1,8 +1,12 @@
 import json
+import logging
 import os
 
 import boto3
 import requests
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
 
@@ -10,7 +14,7 @@ s3 = boto3.client("s3")
 
 
 def handler(event, context):
-    print(f"event: {event}")
+    logger.info(f"event: {event}")
     for record in event.get("Records"):
         body = json.loads(record.get("body"))
         url = body.get("url")
