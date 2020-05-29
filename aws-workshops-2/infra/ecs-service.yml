@@ -130,7 +130,7 @@ Resources:
     Properties:
       HealthCheckIntervalSeconds: 6
       HealthCheckPath: /
-      HealthCheckPort: 5000
+      HealthCheckPort: !Ref 'ContainerPort'
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
