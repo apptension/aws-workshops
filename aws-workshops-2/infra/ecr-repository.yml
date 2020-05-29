@@ -2,7 +2,7 @@ Resources:
   MyRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: "bk-hello-world"
+      RepositoryName: "<CHANGE_IT>-hello-world"
       RepositoryPolicyText:
         Version: "2012-10-17"
         Statement:

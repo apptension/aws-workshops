@@ -2,8 +2,8 @@
 
 set -e
 
-PROJECT_NAME=bk-hello-world
-AWS_DEFAULT_REGION=eu-west-1
+PROJECT_NAME=<CHANGE_IT>-hello-world
+AWS_DEFAULT_REGION=
 VERSION=1
 
 AWS_ACCOUNT_ID=$(aws-vault exec aws-workshops -- aws sts get-caller-identity --output text --query 'Account')
