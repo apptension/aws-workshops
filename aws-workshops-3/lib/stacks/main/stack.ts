@@ -27,10 +27,9 @@ export class MainStack extends Stack {
         this.mainEcrRepository = new MainECRRepository(this, "MainECRRepostiroy", {envSettings});
         this.mainFargateService = new MainFargateService(this, "MainFargateService", {
             envSettings,
-            vpc: this.mainVpc.vpc,
             cluster: this.mainEcsCluster.cluster,
-            httpListener: this.mainEcsCluster.httpListener,
             ecrRepository: this.mainEcrRepository.repository,
+            loadBalancer: this.mainEcsCluster.publicLoadBalancer,
         });
     }
 }

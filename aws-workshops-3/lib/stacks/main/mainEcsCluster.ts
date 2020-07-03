@@ -1,13 +1,7 @@
 import {CfnOutput, Construct, Duration} from "@aws-cdk/core";
 import {Cluster} from '@aws-cdk/aws-ecs';
 import {Peer, Port, SecurityGroup, SubnetType, Vpc} from "@aws-cdk/aws-ec2";
-import {
-    ApplicationListener,
-    ApplicationLoadBalancer,
-    ApplicationProtocol,
-    ApplicationTargetGroup,
-    TargetType
-} from "@aws-cdk/aws-elasticloadbalancingv2";
+import {ApplicationLoadBalancer} from "@aws-cdk/aws-elasticloadbalancingv2";
 
 import {EnvironmentSettings} from "../../settings";
 
@@ -20,7 +14,6 @@ export class MainECSCluster extends Construct {
     cluster: Cluster;
     fargateContainerSecurityGroup: SecurityGroup;
     publicLoadBalancer: ApplicationLoadBalancer;
-    httpListener: ApplicationListener;
 
     static getClusterName(envSettings: EnvironmentSettings) {
         return `${envSettings.projectEnvName}-main`;
@@ -36,7 +29,6 @@ export class MainECSCluster extends Construct {
         this.cluster = this.createCluster(props);
         this.fargateContainerSecurityGroup = this.createFargateSecurityGroup(props);
         this.publicLoadBalancer = this.createPublicLoadBalancer(props);
-        this.httpListener = this.addHttpListener(props, this.publicLoadBalancer);
     }
 
     private createCluster(props: MainECSClusterProps): Cluster {
@@ -105,21 +97,5 @@ export class MainECSCluster extends Construct {
         });
 
         return publicLoadBalancer;
-    }
-
-    private addHttpListener(props: MainECSClusterProps, publicLoadBalancer: ApplicationLoadBalancer): ApplicationListener {
-        return publicLoadBalancer.addListener("HttpListener", {
-            protocol: ApplicationProtocol.HTTP,
-            open: true,
-            port: 80,
-            defaultTargetGroups: [
-                new ApplicationTargetGroup(this, "DummyTargetGroup", {
-                    vpc: props.vpc,
-                    port: 80,
-                    targetGroupName: "DummyTargetGroup",
-                    targetType: TargetType.IP,
-                })
-            ]
-        });
     }
 }
