@@ -1,27 +1,12 @@
 import {SubnetType, Vpc} from "@aws-cdk/aws-ec2";
 import {CfnOutput, Construct} from "@aws-cdk/core";
-import {EnvironmentSettings} from "../../settings";
-
-export interface MainVpcProps {
-    envSettings: EnvironmentSettings,
-}
+import {EnvStackProps} from "../../settings";
 
 export class MainVpc extends Construct {
     vpc: Vpc;
 
-    static getVpcArnOutputExportName(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-mainVpcId`
-    }
 
-    static getPublicSubnetOneIdOutputExportName(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-publicSubnetOneId`
-    }
-
-    static getPublicSubnetTwoIdOutputExportName(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-publicSubnetTwoId`
-    }
-
-    constructor(scope: Construct, id: string, props: MainVpcProps) {
+    constructor(scope: Construct, id: string, props: EnvStackProps) {
         super(scope, id);
 
         this.vpc = this.createVPC();
@@ -42,19 +27,19 @@ export class MainVpc extends Construct {
         });
     }
 
-    private createOutputs(props: MainVpcProps) {
+    private createOutputs(props: EnvStackProps) {
         new CfnOutput(this, "PublicSubnetOneIdOutput", {
-            exportName: MainVpc.getPublicSubnetOneIdOutputExportName(props.envSettings),
+            exportName: `${props.envSettings.projectEnvName}-publicSubnetOneId`,
             value: this.vpc.publicSubnets[0].subnetId,
         });
 
         new CfnOutput(this, "PublicSubnetTwoIdOutput", {
-            exportName: MainVpc.getPublicSubnetTwoIdOutputExportName(props.envSettings),
+            exportName: `${props.envSettings.projectEnvName}-publicSubnetTwoId`,
             value: this.vpc.publicSubnets[1].subnetId,
         });
 
         new CfnOutput(this, "MainVPCOutput", {
-            exportName: MainVpc.getVpcArnOutputExportName(props.envSettings),
+            exportName: `${props.envSettings.projectEnvName}-mainVpcId`,
             value: this.vpc.vpcId,
         });
     }

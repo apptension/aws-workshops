@@ -1,8 +1,15 @@
+import {StackProps} from "@aws-cdk/core";
+
+
 export interface EnvironmentSettings {
     projectName: string;
-    envStage: string;
     projectEnvName: string;
 }
+
+export interface EnvStackProps extends StackProps {
+    envSettings: EnvironmentSettings;
+}
+
 
 export function loadEnvSettings(): EnvironmentSettings {
     const projectName = process.env.PROJECT_NAME;
@@ -10,7 +17,6 @@ export function loadEnvSettings(): EnvironmentSettings {
 
     return {
         projectName: `${projectName}`,
-        envStage: `${envStage}`,
         projectEnvName: `${projectName}-${envStage}`,
     }
 }

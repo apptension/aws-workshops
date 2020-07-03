@@ -1,14 +1,10 @@
-import {App, Stack, StackProps} from "@aws-cdk/core";
+import {App, Stack} from "@aws-cdk/core";
 
 import {MainVpc} from "./mainVpc";
 import {MainECSCluster} from "./mainEcsCluster";
-import {EnvironmentSettings} from "../../settings";
+import {EnvStackProps} from "../../settings";
 import {MainECRRepository} from "./mainEcrRepository";
 import {MainFargateService} from "./mainFargateService";
-
-export interface MainStackProps extends StackProps {
-    envSettings: EnvironmentSettings,
-}
 
 export class MainStack extends Stack {
     mainVpc: MainVpc;
@@ -16,7 +12,7 @@ export class MainStack extends Stack {
     mainEcrRepository: MainECRRepository;
     mainFargateService: MainFargateService;
 
-    constructor(scope: App, id: string, props: MainStackProps) {
+    constructor(scope: App, id: string, props: EnvStackProps) {
         super(scope, id, props);
         const {envSettings} = props;
         this.mainVpc = new MainVpc(this, "MainVPC", {envSettings});

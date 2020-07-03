@@ -3,25 +3,16 @@ import {Cluster} from '@aws-cdk/aws-ecs';
 import {Peer, Port, SecurityGroup, SubnetType, Vpc} from "@aws-cdk/aws-ec2";
 import {ApplicationLoadBalancer} from "@aws-cdk/aws-elasticloadbalancingv2";
 
-import {EnvironmentSettings} from "../../settings";
+import {EnvStackProps} from "../../settings";
 
-export interface MainECSClusterProps {
+export interface MainECSClusterProps extends EnvStackProps {
     vpc: Vpc,
-    envSettings: EnvironmentSettings,
 }
 
 export class MainECSCluster extends Construct {
     cluster: Cluster;
     fargateContainerSecurityGroup: SecurityGroup;
     publicLoadBalancer: ApplicationLoadBalancer;
-
-    static getClusterName(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-main`;
-    }
-
-    static getFargateContainerSecurityGroupIdOutputExportName(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-fargateContainerSecurityGroupId`;
-    }
 
     constructor(scope: Construct, id: string, props: MainECSClusterProps) {
         super(scope, id);
@@ -34,20 +25,8 @@ export class MainECSCluster extends Construct {
     private createCluster(props: MainECSClusterProps): Cluster {
         return new Cluster(this, "Cluster", {
             vpc: props.vpc,
-            clusterName: MainECSCluster.getClusterName(props.envSettings),
+            clusterName: `${props.envSettings.projectEnvName}-main`,
         });
-    }
-
-    static getLoadBalancerArnOutputExportName(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-publicLBArn`;
-    }
-
-    static getLoadBalancerDnsNameOutput(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-publicLBDnsName`;
-    }
-
-    static getPublicLoadBalancerSecurityGroupIdOutputExportName(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-publicLBSecurityGroupId`;
     }
 
     private createFargateSecurityGroup(props: MainECSClusterProps): SecurityGroup {
@@ -60,7 +39,7 @@ export class MainECSCluster extends Construct {
         sg.addIngressRule(sg, Port.allTcp());
 
         new CfnOutput(this, "FargateContainerSecurityGroupIdOutput", {
-            exportName: MainECSCluster.getFargateContainerSecurityGroupIdOutputExportName(props.envSettings),
+            exportName: `${props.envSettings.projectEnvName}-fargateContainerSecurityGroupId`,
             value: sg.securityGroupId,
         });
 
@@ -82,17 +61,17 @@ export class MainECSCluster extends Construct {
         });
 
         new CfnOutput(this, "PublicLoadBalancerSecurityGroupIdOutput", {
-            exportName: MainECSCluster.getPublicLoadBalancerSecurityGroupIdOutputExportName(props.envSettings),
+            exportName: `${props.envSettings.projectEnvName}-publicLBSecurityGroupId`,
             value: securityGroup.securityGroupId,
         });
 
         new CfnOutput(this, "PublicLoadBalancerDnsNameOutput", {
-            exportName: MainECSCluster.getLoadBalancerDnsNameOutput(props.envSettings),
+            exportName: `${props.envSettings.projectEnvName}-publicLBDnsName`,
             value: publicLoadBalancer.loadBalancerDnsName,
         });
 
         new CfnOutput(this, "PublicLoadBalancerArnOutput", {
-            exportName: MainECSCluster.getLoadBalancerArnOutputExportName(props.envSettings),
+            exportName: `${props.envSettings.projectEnvName}-publicLBArn`,
             value: publicLoadBalancer.loadBalancerArn,
         });
 

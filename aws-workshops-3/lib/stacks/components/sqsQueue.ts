@@ -1,19 +1,12 @@
 import {Queue as Queue} from "@aws-cdk/aws-sqs";
 import {CfnOutput, Construct} from "@aws-cdk/core";
-import {EnvironmentSettings} from "../../settings";
+import {EnvStackProps} from "../../settings";
 
-export interface MainQueueProps {
-    envSettings: EnvironmentSettings,
-}
 
 export class SqsQueue extends Construct {
     queue: Queue;
 
-    static getQueueNameOutputExportName(envSettings: EnvironmentSettings) {
-        return `${envSettings.projectEnvName}-queue-name`
-    }
-
-    constructor(scope: Construct, id: string, props: MainQueueProps) {
+    constructor(scope: Construct, id: string, props: EnvStackProps) {
         super(scope, id);
 
         this.queue = this.createQueue();
@@ -26,9 +19,9 @@ export class SqsQueue extends Construct {
         return new Queue(this, "Queue", {deadLetterQueue: {queue: deadLetterQueue, maxReceiveCount: 5}})
     }
 
-    private createOutputs(props: MainQueueProps) {
+    private createOutputs(props: EnvStackProps) {
         new CfnOutput(this, "SqsQueueNameOutput", {
-            exportName: SqsQueue.getQueueNameOutputExportName(props.envSettings),
+            exportName: `${props.envSettings.projectEnvName}-queue-name`,
             value: this.queue.queueName,
         });
     }

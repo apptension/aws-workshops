@@ -1,13 +1,12 @@
 import {Cluster, ContainerImage, FargateService,} from '@aws-cdk/aws-ecs';
 import {Construct} from '@aws-cdk/core';
-import {EnvironmentSettings} from "../../settings";
+import {EnvStackProps} from "../../settings";
 import {Repository} from "@aws-cdk/aws-ecr";
 import {ApplicationLoadBalancedFargateService} from "@aws-cdk/aws-ecs-patterns";
 import {ApplicationLoadBalancer} from "@aws-cdk/aws-elasticloadbalancingv2";
 
 
-export interface MainFargateServiceProps {
-    envSettings: EnvironmentSettings,
+export interface MainFargateServiceProps extends EnvStackProps{
     cluster: Cluster,
     ecrRepository: Repository,
     loadBalancer: ApplicationLoadBalancer,
