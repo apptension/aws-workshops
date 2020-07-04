@@ -24,6 +24,10 @@ export class SqsQueue extends Construct {
             exportName: `${props.envSettings.projectEnvName}-queue-name`,
             value: this.queue.queueName,
         });
+        new CfnOutput(this, "SqsQueueArnOutput", {
+            exportName: `${props.envSettings.projectEnvName}-queue-arn`,
+            value: this.queue.queueArn,
+        });
     }
 
 }
