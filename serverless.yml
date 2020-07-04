@@ -2,7 +2,7 @@ service: <CHANGE_ME>-aws-workshops-1  # NOTE: update this with your service name
 
 custom:
   bucket_name: "<CHANGE_ME>-aws-workshops-bucket"
-  queue_name: "<CHANGE_ME>-aws-workshops-queue"
+  stage: ${opt:stage, self:provider.stage}
 
 provider:
   name: aws
@@ -20,7 +20,7 @@ provider:
         - "sqs:SendMessage"
         - "sqs:GetQueueUrl"
       Resource:
-        - Fn::GetAtt: [MyQueue, Arn]
+        - Fn::ImportValue: "<CHANGE_ME>-${self:custom.stage}-queue-arn"
 
 functions:
   scraper:
@@ -35,7 +35,8 @@ functions:
   trigger:
     handler: handlers.trigger.handler
     environment:
-      QUEUE_NAME: ${self:custom.queue_name}
+      QUEUE_NAME:
+        Fn::ImportValue: "<CHANGE_ME>-${self:custom.stage}-queue-name"
     events:
       - http:
           path: trigger
@@ -47,19 +48,6 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.bucket_name}
-    MyQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: ${self:custom.queue_name}
-        VisibilityTimeout: 60
-        RedrivePolicy:
-          deadLetterTargetArn:
-            Fn::GetAtt: ['MyQueueDLQ', 'Arn']
-          maxReceiveCount: 5
-    MyQueueDLQ:
-      Type: AWS::SQS::Queue
-      Properties:
-        MessageRetentionPeriod: 1209600
 
 plugins:
   - serverless-python-requirements
