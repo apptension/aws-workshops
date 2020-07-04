@@ -1,5 +1,5 @@
 import {SubnetType, Vpc} from "@aws-cdk/aws-ec2";
-import {CfnOutput, Construct} from "@aws-cdk/core";
+import {Construct} from "@aws-cdk/core";
 import {EnvStackProps} from "../../settings";
 
 export class MainVpc extends Construct {
@@ -10,8 +10,6 @@ export class MainVpc extends Construct {
         super(scope, id);
 
         this.vpc = this.createVPC();
-
-        this.createOutputs(props);
     }
 
     private createVPC(): Vpc {
@@ -27,20 +25,4 @@ export class MainVpc extends Construct {
         });
     }
 
-    private createOutputs(props: EnvStackProps) {
-        new CfnOutput(this, "PublicSubnetOneIdOutput", {
-            exportName: `${props.envSettings.projectEnvName}-publicSubnetOneId`,
-            value: this.vpc.publicSubnets[0].subnetId,
-        });
-
-        new CfnOutput(this, "PublicSubnetTwoIdOutput", {
-            exportName: `${props.envSettings.projectEnvName}-publicSubnetTwoId`,
-            value: this.vpc.publicSubnets[1].subnetId,
-        });
-
-        new CfnOutput(this, "MainVPCOutput", {
-            exportName: `${props.envSettings.projectEnvName}-mainVpcId`,
-            value: this.vpc.vpcId,
-        });
-    }
 }
