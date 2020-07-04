@@ -1,4 +1,4 @@
-import {CfnOutput, Construct, Duration} from "@aws-cdk/core";
+import {Construct, Duration} from "@aws-cdk/core";
 import {Cluster} from '@aws-cdk/aws-ecs';
 import {Peer, Port, SecurityGroup, SubnetType, Vpc} from "@aws-cdk/aws-ec2";
 import {ApplicationLoadBalancer} from "@aws-cdk/aws-elasticloadbalancingv2";
@@ -11,14 +11,12 @@ export interface MainECSClusterProps extends EnvStackProps {
 
 export class MainECSCluster extends Construct {
     cluster: Cluster;
-    fargateContainerSecurityGroup: SecurityGroup;
     publicLoadBalancer: ApplicationLoadBalancer;
 
     constructor(scope: Construct, id: string, props: MainECSClusterProps) {
         super(scope, id);
 
         this.cluster = this.createCluster(props);
-        this.fargateContainerSecurityGroup = this.createFargateSecurityGroup(props);
         this.publicLoadBalancer = this.createPublicLoadBalancer(props);
     }
 
@@ -29,22 +27,6 @@ export class MainECSCluster extends Construct {
         });
     }
 
-    private createFargateSecurityGroup(props: MainECSClusterProps): SecurityGroup {
-        const sg = new SecurityGroup(this, "FargateContainerSecurityGroup", {
-            vpc: props.vpc,
-            allowAllOutbound: true,
-            description: `${props.envSettings.projectName} Fargate container security group`,
-        });
-
-        sg.addIngressRule(sg, Port.allTcp());
-
-        new CfnOutput(this, "FargateContainerSecurityGroupIdOutput", {
-            exportName: `${props.envSettings.projectEnvName}-fargateContainerSecurityGroupId`,
-            value: sg.securityGroupId,
-        });
-
-        return sg;
-    }
 
     private createPublicLoadBalancer(props: MainECSClusterProps): ApplicationLoadBalancer {
         const securityGroup = new SecurityGroup(this, "ALBSecurityGroup", {
@@ -58,21 +40,6 @@ export class MainECSCluster extends Construct {
             securityGroup: securityGroup,
             idleTimeout: Duration.seconds(30),
             vpcSubnets: {subnetType: SubnetType.PUBLIC, onePerAz: true},
-        });
-
-        new CfnOutput(this, "PublicLoadBalancerSecurityGroupIdOutput", {
-            exportName: `${props.envSettings.projectEnvName}-publicLBSecurityGroupId`,
-            value: securityGroup.securityGroupId,
-        });
-
-        new CfnOutput(this, "PublicLoadBalancerDnsNameOutput", {
-            exportName: `${props.envSettings.projectEnvName}-publicLBDnsName`,
-            value: publicLoadBalancer.loadBalancerDnsName,
-        });
-
-        new CfnOutput(this, "PublicLoadBalancerArnOutput", {
-            exportName: `${props.envSettings.projectEnvName}-publicLBArn`,
-            value: publicLoadBalancer.loadBalancerArn,
         });
 
         return publicLoadBalancer;
