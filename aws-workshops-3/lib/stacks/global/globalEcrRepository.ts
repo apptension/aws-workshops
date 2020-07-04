@@ -1,17 +1,21 @@
 import {Repository} from '@aws-cdk/aws-ecr';
 import {Aws, Construct} from "@aws-cdk/core";
-import {EnvStackProps} from "../../settings";
+import {EnvironmentSettings, EnvStackProps} from "../../settings";
 import {AccountPrincipal, Role} from "@aws-cdk/aws-iam";
 
 
-export class MainECRRepository extends Construct {
+export class GlobalEcrRepository extends Construct {
     repository: Repository;
+
+    static getBackendRepositoryName(envSettings: EnvironmentSettings) {
+        return `${envSettings.projectName}-backend`;
+    }
 
     constructor(scope: Construct, id: string, props: EnvStackProps) {
         super(scope, id);
 
         this.repository = new Repository(this, "ECRBackendRepository", {
-            repositoryName: `${props.envSettings.projectName}-backend`,
+            repositoryName: GlobalEcrRepository.getBackendRepositoryName(props.envSettings),
         });
         const role = new Role(this, "ECRBackendRepositoryRole", {
             assumedBy: new AccountPrincipal(Aws.ACCOUNT_ID)
